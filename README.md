@@ -75,7 +75,7 @@ Based on the signature of `VirtualProtect()`, there are a few arguments we need 
 
 We will need to setup the stack such that it has the following signature. *Note*: The stack is drawn such that the lower addresses are lower in the image, oftentimes this stack could be oriented in the opposite direction.
 
-<img src="Images/I4.png" width=800>
+<img src="Images/I4.png" width=300>
 
 #### Testing the Exploit
 1. Determine if the vchat process has the `VirtualProtect(...)` function loaded into it's address space. If this is not within the Processes's address space you will need to use an alternative method!
