@@ -80,7 +80,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 #### Testing the Exploit
 1. Determine if the vchat process has the `VirtualProtect(...)` function loaded into it's address space. If this is not within the Processes's address space you will need to use an alternative method!
 
-   <video src="VerrifyVP.mp4" controls title="Title"></video>
+   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/a4e73d14-64ef-4015-aa39-25a7facd0a65
 
    1. Right click the CPU View menu and select *Search For* -> *All Intermodular calls*
 
@@ -94,8 +94,8 @@ We will need to setup the stack such that it has the following signature. *Note*
 
    1. Immunity Debugger 
 
-      <video src="Immunity-VP.mp4" controls title="Title"></video>
-      
+      https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/83965c2f-3f64-4ba9-83f6-35aafa335dd9
+
       1. From the previous intermodular search, copy the address of the call to `VirtualProtect(...)`
 
             <img src="Images/I7.png" width=800>
@@ -110,7 +110,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
    2. [Arwin](https://github.com/xinwenfu/arwin) 
 
-      <video src="Arwin.mp4" controls title="Title"></video>
+      https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2237bfdc-0980-4958-adc9-a05a0681e8f1
 
       1. Open a command prompt
 
@@ -156,15 +156,15 @@ We will need to setup the stack such that it has the following signature. *Note*
 
 4. Modify the exploit program to reflect [exploit0.py](./SourceCode/exploit0.py), this contains placeholders we will fill in at runtime, later this will be handled by the ROP chain.
 
-   <video src="Modify.mp4" controls title="Title">
+   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/d448d4d0-e800-45be-b156-2e1dcbfc67c3
 
-	1. Click on the black button highlighted below, enter in the address we decided in the previous step
+   1. Click on the black button highlighted below, enter in the address we decided in the previous step
 
-		<img src="Images/I12.png" width=600>
+	<img src="Images/I12.png" width=600>
 
-	2. Set a breakpoint at the desired address (Right click), in this case I chose `0x6250508F`, the address of our `RETN` instruction
+   2. Set a breakpoint at the desired address (Right click), in this case I chose `0x6250508F`, the address of our `RETN` instruction
 
-		<img src="Images/I13a.png" width=600>
+	<img src="Images/I13a.png" width=600>
 
    3. Set a second breakpoint at the `JMP ESP` instruction as shown below, in this case I chose the instruction at the address `0x625014DD`.
 
@@ -211,7 +211,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
       <img src="Images/I24.png" width=600>
 
-5. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is unneeded. This will leverage the `PUSHAD` x86 assembly command, this is equivalent to the following assembly instructions, and shows that it will push all of the General Purpose registers onto the stack. 
+6. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is unneeded. This will leverage the `PUSHAD` x86 assembly command, this is equivalent to the following assembly instructions, and shows that it will push all of the General Purpose registers onto the stack. 
    
    1. Examine the actions the `PUSHAD` instruction will take on execution.
    ```
@@ -251,7 +251,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
 4. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
 
-   <video controls src="Exploit1.mp4" title="E1"></video>
+   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/84a9e576-4c96-48e7-a2cd-d242f148c27d
 
       ```
       def create_rop_chain():
@@ -316,7 +316,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
       5. Step through the function and ensure it jumps back to the stack, if you see a `RETN 18` following this will likely be a jump to some random point in the stack, and a raised exception (See the video Below)
 
-         <video controls src="Error.mp4" title="Title"></video>
+         https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
       6. Run Immunity Debugger with **Administrator Privileges** and retry this attack!
 
@@ -341,8 +341,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
 6. Now we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!  
 
-   <video controls src="Exploit2.mp4" title="Title"></video>
-
+   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2494cc5f-1c18-4020-95ef-1b36454cf147
 
 ## Previous Error
 
