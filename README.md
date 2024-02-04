@@ -226,11 +226,11 @@ We will need to setup the stack such that it has the following signature. *Note*
    sub esp, 32
    ```
 
-      <img src="Images/I20.png" width=600>
+      <img src="Images/I20.png" width=300>
       
    2. We will want to load the registers in such a way that the stack has the following signature. 
 
-      <img src="Images/I21.png" width=600>
+      <img src="Images/I21.png" width=300>
    
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is due to the fact the first word following the `ESP pointer` will be used as the address we jump to, since the `EDI` register will be this value it is easiest to chain to `RETN` instructions together in order to bypass this problem.
       * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location. 
