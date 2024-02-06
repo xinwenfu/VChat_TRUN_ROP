@@ -75,7 +75,7 @@ Based on the signature of `VirtualProtect()`, there are a few arguments we need 
 
 We will need to setup the stack such that it has the following signature. *Note*: The stack is drawn such that the lower addresses are lower in the image, oftentimes this stack could be oriented in the opposite direction.
 
-<img src="Images/I4.png" width=300>
+<img src="Images/I4.png" width=800>
 
 #### Testing the Exploit
 1. Determine if the vchat process has the `VirtualProtect(...)` function loaded into it's address space. If this is not within the Processes's address space you will need to use an alternative method!
@@ -226,11 +226,11 @@ We will need to setup the stack such that it has the following signature. *Note*
    sub esp, 32
    ```
 
-      <img src="Images/I20.png" width=300>
+      <img src="Images/I20.png" width=600>
       
    2. We will want to load the registers in such a way that the stack has the following signature. 
 
-      <img src="Images/I21.png" width=300>
+      <img src="Images/I21.png" width=600>
    
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is due to the fact the first word following the `ESP pointer` will be used as the address we jump to, since the `EDI` register will be this value it is easiest to chain to `RETN` instructions together in order to bypass this problem.
       * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location. 
@@ -314,7 +314,11 @@ We will need to setup the stack such that it has the following signature. *Note*
 
          <img src="Images/I27.png" width=600>
 
-      5. Step through the function and ensure it jumps back to the stack, if you see a `RETN 18` following this will likely be a jump to some random point in the stack, and a raised exception (See the video Below)
+      5. Step through the function and ensure it jumps back to the stack, if you see a `RETN 18` following this will likely be a jump to some random point in the stack, and a raised exception (See the video Below). **Do Not** step into `VirtualProtect()` function use the *Step Over* operation as shown below. Otherwise you will see an error included in the video below.
+
+         <img src="Images/I29.png" width=600>
+
+         * This is likely due to the fact Immunity Debugger will attempt to trace and follow the execution into the Kernel Mode a privileged operation! Below is a Video showing the error when we step into the function
 
          https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
