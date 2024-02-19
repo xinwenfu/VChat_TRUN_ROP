@@ -4,6 +4,7 @@
 ___
 The manual creation of ROP Chains is a tedious endeavor as was briefly discussed in [Introduction To ROP](https://github.com/DaintyJet/VChat_ROP_INTRO). You first have to locate suitable gadgets, then you have to chain those gadgets together while being mindful of the conflicts or side-effects induced by the use of gadgets used later in the chain. The difficulty of creating ROP chains that work despite the interference that each gadget could cause has lead to the creation of many tools for creating ROP chains. In this exploit we will use [mona.py](https://github.com/corelan/mona) to discover and generate ROP chains, for more modern architectures there are additional state of the art [tools](https://www.syssec.wiwi.uni-due.de/fileadmin/fileupload/I-SYSSEC/research/RiscyROP.pdf). 
 
+**Notice**: Please setup the Windows and Linux systems as described in [SystemSetup](./SystemSetup/README.md)!
 ## Exploitation
 ### PreExploitation
 1. Open Immunity Debugger
