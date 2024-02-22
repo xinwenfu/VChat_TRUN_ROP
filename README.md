@@ -4,6 +4,7 @@
 ___
 The manual creation of ROP Chains is a tedious endeavor as was briefly discussed in [Introduction To ROP](https://github.com/DaintyJet/VChat_ROP_INTRO). You first have to locate suitable gadgets, then you have to chain those gadgets together while being mindful of the conflicts or side-effects induced by the use of gadgets used later in the chain. The difficulty of creating ROP chains that work despite the interference that each gadget could cause has lead to the creation of many tools for creating ROP chains. In this exploit we will use [mona.py](https://github.com/corelan/mona) to discover and generate ROP chains, for more modern architectures there are additional state of the art [tools](https://www.syssec.wiwi.uni-due.de/fileadmin/fileupload/I-SYSSEC/research/RiscyROP.pdf). 
 
+**Notice**: Please setup the Windows and Linux systems as described in [SystemSetup](./SystemSetup/README.md)!
 ## Exploitation
 ### PreExploitation
 1. Open Immunity Debugger
@@ -162,7 +163,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 
 	<img src="Images/I12.png" width=600>
 
-   2. Set a breakpoint at the desired address (Right click), in this case I chose `0x6250508F`, the address of our `RETN` instruction
+   2. Set a breakpoint at the desired address (Right click), in this case I chose `0x6250129D`, the address of our `RETN` instruction
 
 	<img src="Images/I13a.png" width=600>
 
@@ -241,7 +242,7 @@ We will need to setup the stack such that it has the following signature. *Note*
       * The `ECX` register will contain the value of the `lpflOldProtect` argument which is the address the old status and permissions of the memory region we have specified will be written.
       * The `EAX` register would normally be empty, however we will want to ensure it does not write invalid instructions onto the stack which would crash the program and prevent the exploit from executing; so we can write a series of NOP instructions (0x90) onto the stack, as this is a 32 bit program we will need to write four NOP instructions into the register to fill it.
    
-   3. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`, if there are missing gadgets they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program an Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`.
+   3. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`, if there are missing gadgets they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program an Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output is stored in.
 
    ```
    !mona rop -m *.dll -n
@@ -318,13 +319,9 @@ We will need to setup the stack such that it has the following signature. *Note*
 
          <img src="Images/I29.png" width=600>
 
-         * This is likely due to the fact Immunity Debugger will attempt to trace and follow the execution into the Kernel Mode a privileged operation! Below is a Video showing the error when we step into the function
+         * This is likely due to the fact Immunity Debugger will attempt to trace and follow the execution into the Kernel Mode which is not supported in Immunity Debugger and we would be attempting to debug the kernel of the machine we are running on! Below is a Video showing the error when we step into the function
 
          https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
-
-      6. Run Immunity Debugger with **Administrator Privileges** and retry this attack!
-
-         <img src="Images/I28.png" width=600>
 
 5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). 
 
