@@ -87,7 +87,7 @@ We will need to set up the stack so that it has the following signature when mak
 > [!IMPORTANT]
 > The stack is drawn such that the lower addresses are located lower in the image; oftentimes, this stack could be oriented in the opposite direction when drawn.
 
-<img src="Images/I4.png" width=400>
+<img src="Images/I4.png" width=320>
 
 ### Manual Exploitation
 1. First, we need to determine if the VChat process has the `VirtualProtect(...)` function loaded into its address space. If this is not within the Processes's address space you will need to use an alternative method or use another ROP chain to load the library containing the `VirtualProtect(...)` function before making a call to it!
