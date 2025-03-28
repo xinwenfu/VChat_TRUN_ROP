@@ -238,7 +238,7 @@ We will need to set up the stack so that it has the following signature when mak
    sub esp, 32
    ```
 
-      <img src="Images/I20.png" width=600>
+      <img src="Images/I20.png" width=320>
 
    2. We will want to load the registers in such a way that the stack has the following signature.
 
