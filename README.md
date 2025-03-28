@@ -242,7 +242,7 @@ We will need to set up the stack so that it has the following signature when mak
 
    2. We will want to load the registers in such a way that the stack has the following signature.
 
-      <img src="Images/I21.png" width=600>
+      <img src="Images/I21.png" width=320>
 
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is because the first word following the `ESP pointer` will be used as the address we jump to. Since the `EDI` register will be this value, it is easiest to chain to `RETN` instructions together to bypass this problem.
       * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location.
