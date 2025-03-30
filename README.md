@@ -344,7 +344,6 @@ The stack after SHELL runs.
 
          * This is likely due to the fact Immunity Debugger will attempt to trace and follow the execution into the Kernel Mode which is not supported in Immunity Debugger and we would be attempting to debug the kernel of the machine we are running on! Below is a Video showing the error when we step into the function.
 
-         https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
 2. **Step 2: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
 	```sh
