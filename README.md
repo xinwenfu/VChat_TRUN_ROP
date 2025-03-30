@@ -346,18 +346,18 @@ The stack after SHELL runs.
 	```sh
 	msfvenom -p windows/shell_bind_tcp RPORT=4444 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
 	```
-   * `msfvenom`: [Metasploit](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html) payload encoder and generator.
    * `-p windows/shell_bind_tcp`: Specify we are using the tcp bind shell payload for windows.
-     * `RPORT=4444`: Specify the Receiving (Remote) port is 4444.
-     * `EXITFUNC=thread`: Exit process, this is running as a thread.
-     * `-f`: The output format.
-       * `python`: Format for use in python scripts.
-     * `-v`: Specify a custom variable name.
-     * `SHELL`: Shell Variable name.
-     * `-a x86`: Specify the target architecture as `x86`
-     * `--platform windows`: Specify the target platform as Windows
-     * `-b`: Specifies bad chars and byte values. This is given in the byte values.
-       * `\x00\x0a\x0d`: Null char, carriage return, and newline.
+   * `RPORT=4444`: Specify the Receiving (Remote) port is 4444.
+   * `EXITFUNC=thread`: Exit process, this is running as a thread.
+   * `-f`: The output format.
+     * `python`: Format for use in python scripts.
+   * `-v`: Specify a custom variable name.
+   * `SHELL`: Shell Variable name.
+   * `-a x86`: Specify the target architecture as `x86`
+   * `--platform windows`: Specify the target platform as Windows
+   * `-b`: Specifies bad chars and byte values. This is given in the byte values.
+   * `\x00\x0a\x0d`: Null char, carriage return, and newline.
+     
 6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!
 
    https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2494cc5f-1c18-4020-95ef-1b36454cf147
