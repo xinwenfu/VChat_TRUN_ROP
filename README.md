@@ -272,6 +272,7 @@ The stack after SHELL runs.
    * `-m *.dll`: Search through all DLL files when building ROP chains.
    * `-n`: Ignore all modules that start with a Null Byte.
 
+
     2. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
 
    https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/84a9e576-4c96-48e7-a2cd-d242f148c27d
@@ -361,7 +362,7 @@ The stack after SHELL runs.
    * `-b`: Specifies bad chars and byte values. This is given in the byte values.
    * `\x00\x0a\x0d`: Null char, carriage return, and newline.
      
-3. **Attack**. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
+3. **Step 3. Attack**. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
 ```
 python exploit2.py 10.0.2.15
 ```
