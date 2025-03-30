@@ -253,6 +253,14 @@ We will need to set up the stack so that it has the following signature when mak
       * The `ECX` register will contain the value of the `lpflOldProtect` argument which is the address the old status and permissions of the memory region we have specified will be written.
       * The `EAX` register would normally be empty, however we will want to ensure it does not write invalid instructions onto the stack which would crash the program and prevent the exploit from executing; so we can write a series of NOP instructions (0x90) onto the stack, as this is a 32 bit program we will need to write four NOP instructions into the register to fill it.
 
+The stack before SHELL runs.
+
+<img src="Images/beforeSHELL.png" width=600>
+
+The stack after SHELL runs.
+
+<img src="Images/startSHELL.png" width=600>
+
    3. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
 
    ```
