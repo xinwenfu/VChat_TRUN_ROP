@@ -358,13 +358,13 @@ The stack after SHELL runs.
    * `-b`: Specifies bad chars and byte values. This is given in the byte values.
    * `\x00\x0a\x0d`: Null char, carriage return, and newline.
      
-6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a reverse shell!
-
-   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2494cc5f-1c18-4020-95ef-1b36454cf147
+6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
 
 ## Previous Error
 This section covers a previous error encountered when using a ROP chain generated with `mona.py`. In this case there was a collision between gadgets leading to a corrupted call stack.
-
+```
+nc 10.0.2.15 4444
+```
 
 1. Using the [mona.py](https://github.com/corelan/mona) command, we generate a new ROP chain. This is necessary because gadgets located in modules with ASLR enabled are used.
    ```
