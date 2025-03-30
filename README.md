@@ -168,8 +168,6 @@ We will need to set up the stack so that it has the following signature when mak
 
 4. Modify the exploit program to reflect [exploit0.py](./SourceCode/exploit0.py), this contains placeholders we will fill in at runtime, later these placeholders will be replaced and handled by the ROP chain we have generated.
 
-   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/d448d4d0-e800-45be-b156-2e1dcbfc67c3
-
    1. Click on the black button highlighted below and enter the address we decided on in the previous step.
 
 	   <img src="Images/I12.png" width=600>
@@ -221,7 +219,8 @@ We will need to set up the stack so that it has the following signature when mak
    10. Click run, we should next break at the `JMP ESP` breakpoint we set earlier.
 
       <img src="Images/I24.png" width=600>
-### ROP Chain Generation and Exploitation
+
+### ROP Chain Generation
 
 6. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is not needed. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack.
 
@@ -261,7 +260,11 @@ The stack after SHELL runs.
 
 <img src="Images/startSHELL.png" width=800>
 
-   3. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
+
+### Automatic ROP Chain Generation
+
+1. **Step 1: Use mona to generate the ROP chain for virtualprotect(.)**.
+   1. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
 
    ```
    !mona rop -m *.dll -n
@@ -269,7 +272,7 @@ The stack after SHELL runs.
    * `-m *.dll`: Search through all DLL files when building ROP chains.
    * `-n`: Ignore all modules that start with a Null Byte.
 
-4. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
+  2. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
 
    https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/84a9e576-4c96-48e7-a2cd-d242f148c27d
 
@@ -342,7 +345,7 @@ The stack after SHELL runs.
 
          https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/b5d8de53-356d-4400-8ee7-df7bda4be74c
 
-5. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
+2. **Step 2: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
 	```sh
 	msfvenom -p windows/shell_bind_tcp RPORT=4444 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
 	```
@@ -358,13 +361,17 @@ The stack after SHELL runs.
    * `-b`: Specifies bad chars and byte values. This is given in the byte values.
    * `\x00\x0a\x0d`: Null char, carriage return, and newline.
      
-6. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
-
-## Previous Error
-This section covers a previous error encountered when using a ROP chain generated with `mona.py`. In this case there was a collision between gadgets leading to a corrupted call stack.
+3. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
+```
+python exploit2.py 10.0.2.15
+```
 ```
 nc 10.0.2.15 4444
 ```
+
+
+## Previous Error
+This section covers a previous error encountered when using a ROP chain generated with `mona.py`. In this case there was a collision between gadgets leading to a corrupted call stack.
 
 1. Using the [mona.py](https://github.com/corelan/mona) command, we generate a new ROP chain. This is necessary because gadgets located in modules with ASLR enabled are used.
    ```
