@@ -451,7 +451,7 @@ This section covers a previous error encountered when using a ROP chain generate
 
 ![rop issue 1](Images/rop2.png)
 
-The new gadgets for setting EDX is shown blow:
+The new gadgets for setting EDX is shown below:
 ```
 #[---INFO:gadgets_to_set_edx:---]
 0x77a9683b,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR
