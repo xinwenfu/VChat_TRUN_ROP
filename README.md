@@ -190,7 +190,7 @@ def create_rop_chain():
     ]
     return ''.join(struct.pack('<I', _) for _ in rop_gadgets)
 ```
-      *Note*: We will need to modify the *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
+*Note*: We will need to modify the *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
 
 When *create_rop_chain()* runs, it fills up the stack as follows starting *ROP chain start*. Registers shown on the left indicate at which gadget a register is set.
 
