@@ -85,7 +85,7 @@ BOOL VirtualProtect(
 
 Based on the signature of the `VirtualProtect()` function, there are a few arguments we need to set before calling it. The first is the address of the page region we would like to modify the protection of, followed by the region's size and then the permissions we would like to set. As we are not too concerned with the previous permissions of the region, we just need to set the `lpflOldProtect` value such that we do not overwrite the shellcode we have injected onto the stack.
 
-
+#### Stack setup by the ROP chain
 We will need to set up the stack so that it has the following signature when making the function call. In this case, we will use gadgets to load these values in the correct order.
 
 > [!IMPORTANT]
@@ -93,7 +93,7 @@ We will need to set up the stack so that it has the following signature when mak
 
 <img src="Images/TRUN-ROP-STACK.png" width=320>
 
-**Notes**: 
+**Useful Notes**: 
 
 1. Ue the black button (*Go to Address*) to go to an address to set a breakpoint.
 
@@ -140,6 +140,8 @@ We will need to set up the stack so that it has the following signature when mak
       * The `EAX` register would normally be empty, however we will want to ensure it does not write invalid instructions onto the stack which would crash the program and prevent the exploit from executing; so we can write a series of NOP instructions (0x90) onto the stack, as this is a 32 bit program we will need to write four NOP instructions into the register to fill it.
 
 ### Exploit
+
+The exploit works as follows. We first generate a ROP chain, a sequence of addressess of gadgets and necessary data that will be put on the stack. After the buffer overflow, when the vulnerable function returns, the gadgets run so as to set up the stack as shown above. After VirtualProtect(.) is done, the shellcode runs next. Please
 
 1. **Step 1: Use mona to generate the ROP chain for virtualprotect(.)**.
    1. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
