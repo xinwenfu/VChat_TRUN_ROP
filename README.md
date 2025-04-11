@@ -532,7 +532,13 @@ The mitigations we will be using in the following examination are:
       #[---INFO:pushad:---]
       0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
 ```
-```
+```  
+          |              |
+          |     SHELL    |
+          ---------------
+          |  0x90909090  |
+                ...
+          |  0x90909090  |
           ----------------
           |              | PUSHAD # RETN
           ----------------   
