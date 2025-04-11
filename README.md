@@ -93,56 +93,11 @@ We will need to set up the stack so that it has the following signature when mak
 
 <img src="Images/TRUN-ROP-STACK.png" width=320>
 
-### Manual Exploitation
-1. First, we need to determine if the VChat process has the `VirtualProtect(...)` function loaded into its address space. If this is not within the Processes's address space you will need to use an alternative method or use another ROP chain to load the library containing the `VirtualProtect(...)` function before making a call to it!
+**Notes**: 
 
-   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/a4e73d14-64ef-4015-aa39-25a7facd0a65
+1. Ue the black button (*Go to Address*) to go to an address to set a breakpoint.
 
-   1. Right click the CPU View menu and select *Search For* -> *All Intermodular calls*.
-
-      <img src="Images/I5.png" width=800>
-
-   2. You can click on the *Destination* tab at the top to make the sort order a little more manageable, and then we can search for a call to `VirtualProtect(...)`.
-
-      <img src="Images/I6.png" width=800>
-
-2. If `VirtualProtect(...)` is found we then need to determine the address this function is located at. We can do this directly in *Immunity Debugger* or with *Arwin*. Later we will need to reference the [Import Address Table](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#import-address-table) to determine it's address as it is part of those modules imported into our process.
-
-   1. Immunity Debugger:
-
-      https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/83965c2f-3f64-4ba9-83f6-35aafa335dd9
-
-      1. From the previous intermodular search, copy the address of the call to `VirtualProtect(...)`.
-
-            <img src="Images/I7.png" width=800>
-
-      2. Using the black button (*Go to Address*), locate the call to `VirtualProtect(...)`.
-
-            <img src="Images/I8.png" width=800>
-
-      3. Right-click the address and select *Follow*.
-
-            <img src="Images/I9.png" width=800>
-
-   2. [Arwin](https://github.com/xinwenfu/arwin):
-
-      https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/2237bfdc-0980-4958-adc9-a05a0681e8f1
-
-      1. Open a command prompt.
-
-            <img src="Images/I10.png" width=800>
-
-      2. Run the following command.
-
-            <img src="Images/I11.png" width=800>
-
-         ```
-         arwin kernel32 VirtualProtect
-         ```
-         * `arwin`: Run the arwin command/program.
-         * `kernel32`: Load and search through the kernel32.dll.
-         * `VirtualProtect`: Locate the Virtual Protect function.
-3. Locate a RETN instruction address and pick one that does not have the (READONLY) flag set.
+2. Locate a RETN instruction address and pick one that does not have the (READONLY) flag set.
 	```
 	!mona find -type instr -s "retn" -p 45 -o
 	```
@@ -158,75 +113,7 @@ We will need to set up the stack so that it has the following signature when mak
 	* `-p <number>`: Limit amount of output to the number we specify (May need to increase this to find instructions at an executable location).
 	* `-o`: Omit OS modules.
 
-   <img src="Images/I22.png" width=800>
-
-      * In this case I would chose `0x6250129D`.
-4. Locate a `JMP ESP` command with the following command; we will use this as the return address for the `VirtualProtect(...)` function.
-   ```
-   !mona jmp -n -r esp
-   ```
-   * `mona`: Run the mona module.
-   * `jmp`: Search for jump registers that jump to a location stored in a register we specify.
-   * `-n`: Ignore all modules that start with a null byte.
-   * `-r esp`: Search for jumps that use the esp register as an address.
-
-4. Modify the exploit program to reflect [exploit0.py](./SourceCode/exploit0.py), this contains placeholders we will fill in at runtime, later these placeholders will be replaced and handled by the ROP chain we have generated.
-
-   1. Click on the black button highlighted below and enter the address we decided on in the previous step.
-
-	   <img src="Images/I12.png" width=600>
-
-   2. Set a breakpoint at the desired address (Right click), in this case I chose `0x6250129D`, the address of our `RETN` instruction.
-
-	   <img src="Images/I13a.png" width=600>
-
-   3. Set a second breakpoint at the `JMP ESP` instruction as shown below, in this case I chose the instruction at the address `0x625014DD`.
-
-   	<img src="Images/I13b.png" width=600>
-
-   3. Observe the stack before we have stepped into the `RETN` instruction.
-
-		<img src="Images/I14.png" width=600>
-
-      <!-- * *Note*: Unless you see the TRUN instruction in the EAX register (Sometimes the function we select the `RETN` instruction from is called in the base program). -->
-      * *Notice*: The address we jump to will be the `VirtualProtect(...)` function when the `RETN` is executed, as this is at the top of the stack pointer to by the `EIP` register.
-      <!-- * *Notice* The return address for the function has also been written. -->
-
-   4. Observe the stack after we have stepped into the `RETN` instruction.
-
-		<img src="Images/I15.png" width=600>
-
-      * *Notice*: We have a call stack in the `VirtualProtect(...)` function, which can be seen in the stack view of Immunity Debugger. However, those values are meaningless, and we will need to modify them to test that we can successfully call into the `VirtualProtect(...)` function.
-
-   6. Modify the value of the `lpAddress` argument (right-click the argument in the stack view [Bottom Right Window] and select "modify"). We can give it the value currently held in the `ESP` register, which is an address in the page containing our stack frame that we loaded the values in.
-
-		<img src="Images/I16.png" width=600>
-
-   7. Modify the value of the `dwSize` argument. This can be set to something reasonable, like 512 (0x200) or more.
-
-      <img src="Images/I17.png" width=600>
-
-   8. Modify the value of the `flNewProtect` to be `0x00000040`. This allows instructions located in this memory page region to be executed by the CPU.
-
-      <img src="Images/I18.png" width=600>
-
-   8. Modify the value of the `lpflOldProtect` to be a value "above" us on the stack in this case I chose `0x0131F9D0` as this will prevent us from overwriting our own shellcode if it were placed on the stack.
-
-      <img src="Images/I19.png" width=600>
-
-      * *Notice*: The address we chose was on the stack, this is because the stack has READ and WRITE permissions already, so if we were to leave the address we had there before which is located in the *.text* segment, if the code were to execute as is then the VChat server would crash after raising an exception; if it does recover it would later crash when it jumps back to the stack and attempts to execute instructions while DEP is still enabled.
-
-   9. Step through the function for a short time to ensure that it works, once we are sure the function call has occurred correctly we can move onto the next step.
-
-      <img src="Images/I23.png" width=600>
-
-   10. Click run, we should next break at the `JMP ESP` breakpoint we set earlier.
-
-      <img src="Images/I24.png" width=600>
-
-### ROP Chain Generation
-
-6. Now we can generate a ROP chain that will fill the stack with the appropriate values *Dynamically* such that the manual modification of stack values with a debugger is not needed. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack.
+3. We want to generate a ROP chain that will fill the stack with the appropriate values *Dynamically*. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack.
 
    1. Examine the actions the `PUSHAD` instruction will take on execution.
    ```
@@ -245,8 +132,6 @@ We will need to set up the stack so that it has the following signature when mak
 
    2. We will want to load the registers in such a way that the stack has the following signature.
 
-      <img src="Images/AnnotateROP.drawio.png" width=320>
-
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is because the first word following the `ESP pointer` will be used as the address we jump to. Since the `EDI` register will be this value, it is easiest to chain to `RETN` instructions together to bypass this problem.
       * The `ESI` register will hold the address of the `VirtualProtect(...)` function so the second `RETN` instruction will jump to the desired location.
       * The `EBP` register will need to contain the Address the `VirtualProtect(...)` function will jump to on completion.
@@ -256,16 +141,7 @@ We will need to set up the stack so that it has the following signature when mak
       * The `ECX` register will contain the value of the `lpflOldProtect` argument which is the address the old status and permissions of the memory region we have specified will be written.
       * The `EAX` register would normally be empty, however we will want to ensure it does not write invalid instructions onto the stack which would crash the program and prevent the exploit from executing; so we can write a series of NOP instructions (0x90) onto the stack, as this is a 32 bit program we will need to write four NOP instructions into the register to fill it.
 
-The stack before SHELL runs.
-
-<img src="Images/beforeSHELL.png" width=800>
-
-The stack after SHELL runs.
-
-<img src="Images/startSHELL.png" width=800>
-
-
-### Automatic ROP Chain Generation
+### Exploit
 
 1. **Step 1: Use mona to generate the ROP chain for virtualprotect(.)**.
    1. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
