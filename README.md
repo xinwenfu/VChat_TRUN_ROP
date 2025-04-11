@@ -243,7 +243,12 @@ ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
           |              | POP EBX # RETN
           ----------------   
           | ret addr     | -> retn
-          ---------------- <- ESP
+          ---------------- 
+          | Padding      |
+          |    ...       |
+          | Padding      |
+          | TRUN /.:/    |
+          ----------------
 ```
 Note: & means address of
 
