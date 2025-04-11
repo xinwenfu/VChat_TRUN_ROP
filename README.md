@@ -128,8 +128,6 @@ We will need to set up the stack so that it has the following signature when mak
    sub esp, 32
    ```
 
-      <img src="Images/ROP_TRUN.drawio.png" width=320>
-
    2. We will want to load the registers in such a way that the stack has the following signature.
 
       * We need to load the `EDI` register with the address of a `RETN` instruction. This is because the first word following the `ESP pointer` will be used as the address we jump to. Since the `EDI` register will be this value, it is easiest to chain to `RETN` instructions together to bypass this problem.
