@@ -257,7 +257,13 @@ start        ----------------
 ```
 **Note**: & means address of.
 
-To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function. The screenshot below shows the stack right after VirtualProtect(.) returns with *retn 10*.
+To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function. 
+
+The screenshot below shows the stack at *retn 10* of VirtualProtect(.).
+
+<img src="Images/RETN-VirtualProtect.png">
+
+The screenshot below shows the stack right after VirtualProtect(.) returns with *retn 10*.
 
 <img src="Images/After-VirtualProtect.png">
 
