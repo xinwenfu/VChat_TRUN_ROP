@@ -55,6 +55,10 @@ The manual creation of ROP Chains is a tedious and time-consuming endeavor, as w
 > [!IMPORTANT]
 > The offsets and addresses shown in the following screenshots may differ from those used in the python and ruby code in this repository. This is because the offsets change slightly between the Windows 10 version of VChat compiled with GCC and the Windows 11 version compiled with the Visual Studio compiler.
 
+### Setting up Windows
+1. Enable DEP within **Exploit Protection** of Windows.
+2. Disable **Real-time Protection** in *Virus & threat protection settings* of Windows.
+
 ### Exploitation Planning
 Our goal of this exploit will be to use a ROP chain to disable the NX-Bit and the associated [DEP](https://github.com/DaintyJet/VChat_DEP) protections on a memory page of the executing program by calling the [`VirtualProtect(...)`](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect) function in order to modify the protections placed on a region of memory. In this case, we will aim to call the `VirtualProtect(...)` function on the region our stack resides in to allow the direct execution of the shellcode that has been injected onto the stack. An alternative method we could use leverages the `VirtualAlloc(...)` function to allocate space on an existing heap with the execution bit set, this would allow us to load shellcode into that location, once this is done we can then jump to and execute it.
 
