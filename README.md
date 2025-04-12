@@ -149,7 +149,6 @@ The exploit works as follows. We first generate a ROP chain, a sequence of addre
 
 1. **Step 2: Use mona to generate the ROP chain for virtualprotect(.)**.
    1. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
-
    ```
    !mona rop -m *.dll -n
    ```
