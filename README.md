@@ -55,7 +55,7 @@ The manual creation of ROP Chains is a tedious and time-consuming endeavor, as w
 > [!IMPORTANT]
 > The offsets and addresses shown in the following screenshots may differ from those used in the python and ruby code in this repository. This is because the offsets change slightly between the Windows 10 version of VChat compiled with GCC and the Windows 11 version compiled with the Visual Studio compiler.
 
-### Setting up Windows
+### Step 1. Setting up Windows
 1. Enable DEP within **Exploit Protection** of Windows.
 2. Disable **Real-time Protection** in *Virus & threat protection settings* of Windows.
 
@@ -147,7 +147,7 @@ We will need to set up the stack so that it has the following signature when mak
 
 The exploit works as follows. We first generate a ROP chain, a sequence of addressess of gadgets and necessary data that will be put on the stack. After the buffer overflow, when the vulnerable function returns, the gadgets run so as to set up the stack as shown [above](#stack-setup-by-the-rop-chain). After VirtualProtect(.) is done, the shellcode runs next. Please
 
-1. **Step 1: Use mona to generate the ROP chain for virtualprotect(.)**.
+1. **Step 2: Use mona to generate the ROP chain for virtualprotect(.)**.
    1. We can use the following command provided by [mona.py](https://github.com/corelan/mona) to generate the chain for us. The resulting chains will be located in `rop_chains.txt`; if there are missing gadgets, they could be located in `rop.txt` or `rop_suggestions.txt`. These will be located in the working directory for the mona.py program and Immunity Debugger, in my case this was in the directory `C:\Users<User>\AppData\Local\VirtualStore\Program Files (x86)\Immunity Inc\Immunity Debugger`. You can also use the command `!mona config -set workingfolder c:\logs\E10` to set the folder our output will be stored in.
 
    ```
@@ -259,7 +259,7 @@ start        ----------------
 
 To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function.
 
-2. **Step 2: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
+2. **Step 3: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
 	```sh
 	msfvenom -p windows/shell_bind_tcp RPORT=4444 EXITFUNC=thread -f python -v SHELL -a x86 --platform windows -b '\x00\x0a\x0d'
 	```
@@ -275,7 +275,7 @@ To debug and see what happens when the ROP chain works, click on the black butto
    * `-b`: Specifies bad chars and byte values. This is given in the byte values.
    * `\x00\x0a\x0d`: Null char, carriage return, and newline.
      
-3. **Step 3. Attack**. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
+3. **Step 4. Attack**. Now, we can modify the exploit program to reflect [exploit2.py](./SourceCode/exploit2.py) and verify that we can acquire a shell!
 ```
 python exploit2.py 10.0.2.15
 ```
