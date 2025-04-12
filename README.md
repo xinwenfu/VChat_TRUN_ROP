@@ -250,7 +250,7 @@ start        ----------------
              | TRUN /.:/    |
              ----------------
 ```
-Note: & means address of
+**Note**: & means address of
 
 
 To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function.
