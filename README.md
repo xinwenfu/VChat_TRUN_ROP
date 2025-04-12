@@ -197,7 +197,7 @@ The exploit works as follows. We first generate a ROP chain, a sequence of addre
 ```
 *Note*: We will need to modify *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
 
-When *create_rop_chain()* runs, it fills up the stack as follows starting at *ROP chain start*. Registers shown on the left indicate at which gadget a register is set.
+When *create_rop_chain()* runs, it fills up the stack as follows starting at *ROP chain start here*. Registers shown on the left indicate at which gadget a register is set.
 
 ```  
              |              |
@@ -246,7 +246,7 @@ ESI          |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
              | 0x75bf6164   | ptr to &VirtualProtect(); EBX contains address of VirtualProtect()'s address at this point    
              ----------------   
 ROP chain    |              | POP EBX # RETN
-start  --->  ----------------   
+start here -->  ----------------   
              | retn addr    | overwritten ret addrss of vulnerable function
              ---------------- 
              | Padding      |
