@@ -105,17 +105,17 @@ We will need to set up the stack so that it has the following signature when mak
 	```
 	!mona find -type instr -s "retn" -p 45 -o
 	```
-	* `!mona`: Run mona.py commands.
-	* `find`: Locate something withing the binary which has been loaded into Immunity debugger.
-	* `-type`: Specify the type of the object string we are searching for.
+	  * `!mona`: Run mona.py commands.
+	  * `find`: Locate something withing the binary which has been loaded into Immunity debugger.
+	  * `-type`: Specify the type of the object string we are searching for.
 		* `asc`: Search for an asci string.
 		* `bin`: Search for a binary string.
 		* `ptr`: Search for a pointer (memory address).
 		* `instr`: Search for a instruction.
 		* `file`: Search for a file.
-	* `-s "<String>"`: Specify the string we are searching for.
-	* `-p <number>`: Limit amount of output to the number we specify (May need to increase this to find instructions at an executable location).
-	* `-o`: Omit OS modules.
+	  * `-s "<String>"`: Specify the string we are searching for.
+	  * `-p <number>`: Limit amount of output to the number we specify (May need to increase this to find instructions at an executable location).
+	  * `-o`: Omit OS modules.
 
 3. We want to generate a ROP chain that will fill the stack with the appropriate values *Dynamically*. This will leverage the `PUSHAD` x86 assembly instruction. This single instruction is equivalent to the following set of assembly instructions and shows that it will push all of the General Purpose registers onto the stack.
 
