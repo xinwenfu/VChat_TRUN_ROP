@@ -1,4 +1,4 @@
-# VChat TRUN Exploit: ROP Chain Exploitation
+# VChat TRUN : ROP Chain Exploitation
 > [!NOTE]
 > - The following exploit and its procedures are based on an original [Blog](https://fluidattacks.com/blog/vulnserver-trun-rop/) from fluid attacks.
 > - Disable Windows *Real-time protection* at *Virus & threat protection* -> *Virus & threat protection settings*.
