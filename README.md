@@ -255,10 +255,11 @@ start        ----------------
              | TRUN /.:/    |
              ----------------
 ```
-**Note**: & means address of
+**Note**: & means address of.
 
+To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function. The screenshot below shows the stack right after VirtualProtect(.) returns with *retn 10*.
 
-To debug and see what happens when the ROP chain works, click on the black button within *Immunity Debugger* highlighted and enter an address, e.g., the address of *retn* used to overwrite the return address of the vunerable function.
+<img src="Images/After-VirtualProtect.png">
 
 2. **Step 3: Generate bind shell**. Now we can add a payload to our exploit, this can be generated with [msfvenom](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html). We create a bind shell. This is a program that listens for connections on the target machine and provides a shell to anyone that makes a tcp connection to the port it is listening on. We can generate the shellcode with the following command.
 	```sh
