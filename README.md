@@ -153,8 +153,8 @@ The exploit works as follows. We first generate a ROP chain, a sequence of addre
    ```
    !mona rop -m *.dll -n
    ```
-   * `-m *.dll`: Search through all DLL files when building ROP chains.
-   * `-n`: Ignore all modules that start with a Null Byte.
+      * `-m *.dll`: Search through all DLL files when building ROP chains.
+      * `-n`: Ignore all modules that start with a Null Byte.
 
 
     2. We can try executing this ROP chain by modifying the program to reflect the [exploit1.py](./SourceCode/exploit1.py) program. Below is the function in the `rop_chain.txt` function.
